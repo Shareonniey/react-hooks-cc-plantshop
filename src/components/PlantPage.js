@@ -7,7 +7,6 @@ function PlantPage() {
   const [plants, setPlants] = useState([]);
   const [displayPlants, setDisplayPlants] = useState([]);
 
-  // Fetch all plants on page load
   useEffect(() => {
     fetch("http://localhost:6001/plants")
       .then((res) => res.json())
@@ -17,41 +16,34 @@ function PlantPage() {
       });
   }, []);
 
-  // Toggle "Sold Out" status
-  function handleToggleSoldOut(id) {
-    const plant = plants.find((p) => p.id === id);
-    const updatedPlant = { ...plant, soldOut: !plant.soldOut };
-
-    fetch(`http://localhost:6001/plants/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ soldOut: updatedPlant.soldOut }),
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        setPlants(plants.map((p) => (p.id === id ? data : p)));
-        setDisplayPlants(displayPlants.map((p) => (p.id === id ? data : p)));
-      });
+  function handleAddPlant(newPlant) {
+    setPlants([...plants, newPlant]);
+    setDisplayPlants([...plants, newPlant]);
   }
 
-  // Add a new plant
-  function handleAddPlant(newPlant) {
-    fetch("http://localhost:6001/plants", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(newPlant), // send {name, image, price} directly
-    })
-      .then((res) => res.json())
-      .then((addedPlant) => {
-        setPlants([...plants, addedPlant]);
-        setDisplayPlants([...displayPlants, addedPlant]);
-      });
+  function handleSearch(searchTerm) {
+    const filtered = plants.filter(plant => 
+      plant.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setDisplayPlants(filtered);
+  }
+
+  function handleToggleSoldOut(plantId) {
+    const updatedPlants = plants.map(plant => 
+      plant.id === plantId ? { ...plant, soldOut: !plant.soldOut } : plant
+    );
+    setPlants(updatedPlants);
+    
+    const updatedDisplayPlants = displayPlants.map(plant =>
+      plant.id === plantId ? { ...plant, soldOut: !plant.soldOut } : plant
+    );
+    setDisplayPlants(updatedDisplayPlants);
   }
 
   return (
     <main>
       <NewPlantForm onAddPlant={handleAddPlant} />
-      <Search plants={plants} onFiltered={setDisplayPlants} />
+      <Search onSearch={handleSearch} />
       <PlantList plants={displayPlants} onToggleSoldOut={handleToggleSoldOut} />
     </main>
   );

@@ -1,26 +1,17 @@
-import React, { useState } from "react";
+import React from "react";
 
-function Search({ plants, onFiltered }) {
-  const [searchTerm, setSearchTerm] = useState("");
-
+function Search({ onSearch }) {
   function handleChange(e) {
-    const value = e.target.value.toLowerCase();
-    setSearchTerm(value);
-
-    const filtered = plants.filter((plant) =>
-      plant.name.toLowerCase().includes(value)
-    );
-    onFiltered(filtered);
+    onSearch(e.target.value);
   }
 
   return (
     <div className="searchbar">
       <label htmlFor="search">Search Plants:</label>
       <input
-        id="search"
         type="text"
+        id="search"
         placeholder="Type a name to search..."
-        value={searchTerm}
         onChange={handleChange}
       />
     </div>
@@ -28,4 +19,3 @@ function Search({ plants, onFiltered }) {
 }
 
 export default Search;
-
