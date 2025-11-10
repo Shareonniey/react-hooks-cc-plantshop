@@ -5,27 +5,23 @@ import Search from "./Search";
 
 function PlantPage() {
   const [plants, setPlants] = useState([]);
-  const [displayPlants, setDisplayPlants] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     fetch("http://localhost:6001/plants")
       .then((res) => res.json())
       .then((data) => {
         setPlants(data);
-        setDisplayPlants(data);
       });
   }, []);
 
+  // Filter plants based on search term
+  const filteredPlants = plants.filter(plant =>
+    plant.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   function handleAddPlant(newPlant) {
     setPlants([...plants, newPlant]);
-    setDisplayPlants([...plants, newPlant]);
-  }
-
-  function handleSearch(searchTerm) {
-    const filtered = plants.filter(plant => 
-      plant.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-    setDisplayPlants(filtered);
   }
 
   function handleToggleSoldOut(plantId) {
@@ -33,18 +29,13 @@ function PlantPage() {
       plant.id === plantId ? { ...plant, soldOut: !plant.soldOut } : plant
     );
     setPlants(updatedPlants);
-    
-    const updatedDisplayPlants = displayPlants.map(plant =>
-      plant.id === plantId ? { ...plant, soldOut: !plant.soldOut } : plant
-    );
-    setDisplayPlants(updatedDisplayPlants);
   }
 
   return (
     <main>
       <NewPlantForm onAddPlant={handleAddPlant} />
-      <Search onSearch={handleSearch} />
-      <PlantList plants={displayPlants} onToggleSoldOut={handleToggleSoldOut} />
+      <Search searchTerm={searchTerm} onSearch={setSearchTerm} /> {/* Fix this line */}
+      <PlantList plants={filteredPlants} onToggleSoldOut={handleToggleSoldOut} />
     </main>
   );
 }
